@@ -1,0 +1,2 @@
+[all]
+kvmhost1 ansible_ssh_host=

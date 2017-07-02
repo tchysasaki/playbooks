@@ -1,0 +1,37 @@
+- name: Configure kvm
+  hosts: all
+  become: true
+  vars:
+    def_if_name: 
+    bridge_name: br0
+    ip_addr: 
+    netmask:
+    network:
+    bc: 
+    dns1:
+    dns2:
+    gw:
+  tasks:
+    - name: install kvm
+      yum:
+        name: '{{ item }}'
+        update_cache: yes
+        state: present
+      with_items:
+        - qemu-kvm
+        - libvirt
+        - virt-install
+        - bridge-utils
+
+    - name: configure libvirtd
+      systemd:
+        name: libvirtd.service
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+    - name: create bridge
+      template: src=templates/ifcfg-br0.j2 dest=/etc/sysconfig/network-scripts/ifcfg-br0 owner=root group=root mode=0644 
+
+    - name: edit default if
+      lineinfile: dest=/etc/sysconfig/network-scripts/ifcfg-{{ def_if_name }} state=present line='BRIDGE={{ bridge_name }}'
